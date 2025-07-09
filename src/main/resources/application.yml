@@ -1,0 +1,41 @@
+app:
+  name: FastFood Pedidos
+  mercadopagotoken: ${MERCADO_PAGO_TOKEN:TOKEN}
+  url: ${APPLICATION_URL:https://127.0.0.1:8080}
+  fila-pedidos: ${ENDERECO_FILA_pedidos:https://localhost.localstack.cloud:4566/000000000000/fila-pedidos}
+spring:
+  profiles:
+    active: ${PROFILE:DEV}
+  application:
+    name: fastfood-pedidos
+  config:
+    import: optional:file:.env[.properties]
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/fastfood_pedidos}
+    username: ${SPRING_DATASOURCE_USERNAME:fastfood_pedidos_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:fastfood_pedidos_password}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jpa:
+    hibernate:
+      ddl-auto: none # Flyway gerencia
+    show-sql: true
+  docker:
+    compose:
+      file: ./run/docker-compose.yml
+  springdoc:
+    api-docs:
+      path: /api-docs
+    swagger-ui:
+      path: /swagger
+      use-root-path: true
+  cloud:
+    aws:
+      endpoint: ${AWS_ENDPOINT:http://localhost:4566}
+      region:
+        static: ${AWS_REGION:sa-east-1}
+      credentials:
+        access-key: ${AWS_ACCESS_KEY:test}
+        secret-key: ${AWS_SECRET_KEY:test}
+        session-token: ${AWS_SESSION_TOKEN:test}
