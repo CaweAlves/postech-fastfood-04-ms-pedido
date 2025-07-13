@@ -1,12 +1,8 @@
 package org.fiap.fastfoodpedidos.infrastructure.config;
 
 import org.fiap.fastfoodpedidos.application.port.driven.*;
-import org.fiap.fastfoodpedidos.application.port.driver.BuscarPedidosEmAndamentoUseCase;
-import org.fiap.fastfoodpedidos.application.port.driver.BuscarPedidosUseCase;
-import org.fiap.fastfoodpedidos.application.usecase.BuscarPedidoUseCaseImp;
-import org.fiap.fastfoodpedidos.application.usecase.BuscarPedidosEmAndamentoUseCaseImp;
-import org.fiap.fastfoodpedidos.application.usecase.BuscarPedidosUseCaseImp;
-import org.fiap.fastfoodpedidos.application.usecase.CriarPedidoUseCaseImp;
+import org.fiap.fastfoodpedidos.application.port.driver.*;
+import org.fiap.fastfoodpedidos.application.usecase.*;
 import org.fiap.fastfoodpedidos.infrastructure.adapter.client.PagamentoClientAdapter;
 import org.fiap.fastfoodpedidos.infrastructure.adapter.persistence.PedidoAdapter;
 import org.fiap.fastfoodpedidos.infrastructure.adapter.persistence.mapper.PedidoPersistenceMapper;
@@ -19,30 +15,34 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class BeanConfiguration {
 
-
     @Bean
     public PedidoAdapter pedidoAdapter(final PedidoRepository pedidoRepository, final PedidoPersistenceMapper pedidoPersistenceMapper, final PedidoProdutoRepository pedidoProdutoRepository) {
         return new PedidoAdapter(pedidoRepository, pedidoPersistenceMapper, pedidoProdutoRepository);
     }
 
     @Bean
-    public CriarPedidoUseCaseImp criarPedidoImp(final SalvarPedido salvarPedido, final BuscarProdutoPeloIdUseCase buscarProdutoPeloIdUseCase) {
+    public CriarPedidoUseCase criarPedidoUseCase(final SalvarPedido salvarPedido, final BuscarProdutoPeloIdUseCase buscarProdutoPeloIdUseCase) {
         return new CriarPedidoUseCaseImp(salvarPedido, buscarProdutoPeloIdUseCase);
     }
 
     @Bean
-    public BuscarPedidoUseCaseImp buscarPedidoImp(final ConsultarPedido consultarPedido) {
+    public BuscarPedidoUseCase buscarPedidoUseCase(final ConsultarPedido consultarPedido) {
         return new BuscarPedidoUseCaseImp(consultarPedido);
     }
 
     @Bean
-    public BuscarPedidosUseCase criarBuscarPedidosUseCase(final ConsultarPedidos consultarPedidos) {
+    public BuscarPedidosUseCase buscarPedidosUseCase(final ConsultarPedidos consultarPedidos) {
         return new BuscarPedidosUseCaseImp(consultarPedidos);
     }
 
     @Bean
-    public BuscarPedidosEmAndamentoUseCase criarBuscarPedidosEmAndamentoUseCase(final ConsultarPedidosEmAndamento consultarPedidos) {
+    public BuscarPedidosEmAndamentoUseCase buscarPedidosEmAndamentoUseCase(final ConsultarPedidosEmAndamento consultarPedidos) {
         return new BuscarPedidosEmAndamentoUseCaseImp(consultarPedidos);
+    }
+
+    @Bean
+    public AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase(final ConsultarPedido consultarPedido, final SalvarPedido salvarPedido) {
+        return new AtualizarStatusPedidoUseCaseImp(consultarPedido, salvarPedido);
     }
 
     @Bean
@@ -50,4 +50,18 @@ public class BeanConfiguration {
         return new PagamentoClientAdapter(restTemplate);
     }
 
+    @Bean
+    public IniciarPagamentoUseCase iniciarPagamentoUseCase(final SolicitarPagamento solicitarPagamento, final ManipularPagamento manipularPagamento, final ConsultarPedido consultarPedido) {
+        return new IniciarPagamentoUseCaseUseCaseImpl(solicitarPagamento, manipularPagamento, consultarPedido);
+    }
+
+    @Bean
+    public ConfirmarPagamentoUseCase confirmarPagamentoUseCase(final ManipularPagamento manipularPagamento, final AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase) {
+        return new ConfirmarPagamentoUseCaseUseCaseImpl(manipularPagamento, atualizarStatusPedidoUseCase);
+    }
+
+    @Bean
+    public CancelarPagamentoUseCase cancelarPagamentoUseCase(final ManipularPagamento manipularPagamento, final AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase) {
+        return new CancelarPagamentoUseCaseUseCaseImpl(manipularPagamento, atualizarStatusPedidoUseCase);
+    }
 }

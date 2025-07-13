@@ -22,7 +22,38 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "localstack_data:/var/lib/localstack"
+  postgres:
+    image: postgres:17
+    container_name: postgres_fastfood
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fastfood_network
+  fastfood_app:
+      build: ./../
+      image: fastfood_app_pedidos:latest
+      container_name: fastfood_app_pedidos
+      environment:
+        SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+        SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+        SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      ports:
+        - "9901:8080"
+      depends_on:
+        - postgres
+      networks:
+        - fastfood_network
 
 volumes:
+  postgres_data:
   localstack_data:
   mongodb_data:
+
+networks:
+  fastfood_network:

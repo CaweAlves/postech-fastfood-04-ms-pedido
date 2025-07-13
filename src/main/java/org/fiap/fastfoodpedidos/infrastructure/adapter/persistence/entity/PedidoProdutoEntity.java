@@ -30,6 +30,7 @@ public class PedidoProdutoEntity implements Serializable {
     @Column(name = "id")
     private Integer id;
 
+    @Setter
     @NotNull
     @Column(name = "produto_id", nullable = false)
     private Integer produtoId;
