@@ -64,4 +64,9 @@ public class BeanConfiguration {
     public CancelarPagamentoUseCase cancelarPagamentoUseCase(final ManipularPagamento manipularPagamento, final AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase) {
         return new CancelarPagamentoUseCaseUseCaseImpl(manipularPagamento, atualizarStatusPedidoUseCase);
     }
+
+    @Bean
+    public CriarClienteUseCaseImp criarClienteUseCaseImp(SalvarCliente salvarCliente) {
+        return new CriarClienteUseCaseImp(salvarCliente);
+    }
 }

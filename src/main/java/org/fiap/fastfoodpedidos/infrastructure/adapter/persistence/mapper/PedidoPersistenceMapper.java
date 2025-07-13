@@ -13,11 +13,14 @@ import org.mapstruct.Named;
 public interface PedidoPersistenceMapper {
 
     Pedido toDomain(PedidoEntity entity);
+
     PedidoEntity toEntity(Pedido pedido);
 
+    @Mapping(target = "pedido", ignore = true)
     @Mapping(target = "produto", source = "produtoId", qualifiedByName = "mapProdutoIdToProduto")
     PedidoProduto toDomain(PedidoProdutoEntity entity);
 
+    @Mapping(target = "pedido", ignore = true)
     @Mapping(target = "produtoId", source = "produto.id")
     PedidoProdutoEntity toEntity(PedidoProduto domain);
 

@@ -6,7 +6,9 @@ import org.fiap.fastfoodpedidos.domain.model.Cliente;
 import org.fiap.fastfoodpedidos.infrastructure.adapter.persistence.entity.ClienteEntity;
 import org.fiap.fastfoodpedidos.infrastructure.adapter.persistence.mapper.ClientePersistenceMapper;
 import org.fiap.fastfoodpedidos.infrastructure.adapter.persistence.repository.ClienteRepository;
+import org.springframework.stereotype.Component;
 
+@Component
 @RequiredArgsConstructor
 public class ClienteAdapter implements SalvarCliente {
 
