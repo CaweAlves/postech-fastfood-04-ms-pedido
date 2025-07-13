@@ -1,8 +1,8 @@
 package org.fiap.fastfoodpedidos.application.usecase;
 
 import lombok.AllArgsConstructor;
+import org.fiap.fastfoodpedidos.application.port.driven.BuscarProdutoPeloIdUseCase;
 import org.fiap.fastfoodpedidos.application.port.driven.SalvarPedido;
-import org.fiap.fastfoodpedidos.application.port.driver.BuscarProdutoPeloIdUseCase;
 import org.fiap.fastfoodpedidos.application.port.driver.CriarPedidoUseCase;
 import org.fiap.fastfoodpedidos.domain.enumeration.PedidoStatus;
 import org.fiap.fastfoodpedidos.domain.model.Pedido;

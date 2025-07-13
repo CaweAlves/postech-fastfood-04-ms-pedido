@@ -30,6 +30,10 @@ public class PedidoProdutoEntity implements Serializable {
     @Column(name = "id")
     private Integer id;
 
+    @NotNull
+    @Column(name = "produto_id", nullable = false)
+    private Integer produtoId;
+
     @Setter
     @NotNull
     @Column(name = "quantidade", nullable = false)
@@ -44,12 +48,6 @@ public class PedidoProdutoEntity implements Serializable {
     @JoinColumn(name = "pedido_id")
     @JsonIgnoreProperties(value = {"pedidoProdutos", "cliente", "produtos"}, allowSetters = true)
     private PedidoEntity pedido;
-
-    @Setter
-    @ManyToOne
-    @JoinColumn(name = "produto_id")
-    @JsonIgnoreProperties(value = {"pedidoProdutos", "categoria", "pedidos"}, allowSetters = true)
-    private ProdutoEntity produto;
 
     public PedidoProdutoEntity id(Integer id) {
         this.setId(id);
@@ -66,8 +64,8 @@ public class PedidoProdutoEntity implements Serializable {
         return this;
     }
 
-    public PedidoProdutoEntity produto(ProdutoEntity produtoEntity) {
-        this.setProduto(produtoEntity);
+    public PedidoProdutoEntity produtoId(Integer produtoId) {
+        this.setProdutoId(produtoId);
         return this;
     }
 

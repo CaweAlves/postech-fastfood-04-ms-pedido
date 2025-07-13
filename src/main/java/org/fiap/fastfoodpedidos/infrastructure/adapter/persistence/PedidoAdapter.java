@@ -22,7 +22,6 @@ public class PedidoAdapter implements SalvarPedido, ConsultarPedido, BuscarPedid
 
     private final PedidoRepository pedidoRepository;
     private final PedidoPersistenceMapper pedidoPersistenceMapper;
-    private final ProdutoPersistenceMapper produtoPersistenceMapper;
     private final PedidoProdutoRepository pedidoProdutoRepository;
 
     @Override
@@ -40,9 +39,11 @@ public class PedidoAdapter implements SalvarPedido, ConsultarPedido, BuscarPedid
 
     @Override
     public List<Pedido> execute(Produto produto) {
-        ProdutoEntity produtoEntity = this.produtoPersistenceMapper.toEntity(produto);
-        List<PedidoProdutoEntity> pedidoProdutoList = pedidoProdutoRepository.findByProduto(produtoEntity);
-        return pedidoProdutoList.stream().map(pedidoProduto -> pedidoPersistenceMapper.toDomain(pedidoProduto.getPedido())).toList();
+        List<PedidoProdutoEntity> pedidoProdutoList = pedidoProdutoRepository.findByProdutoId(produto.getId());
+        return pedidoProdutoList.stream()
+                .map(pedidoProduto -> pedidoPersistenceMapper.toDomain(pedidoProduto.getPedido()))
+                .distinct()
+                .toList();
     }
 
     @Override
