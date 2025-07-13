@@ -1,54 +1,81 @@
 version: '3.9'
 services:
-  mongodb:
-    image: 'mongo:latest'
-    environment:
-      - 'MONGO_INITDB_DATABASE=mydatabase'
-      - 'MONGO_INITDB_ROOT_PASSWORD=secret'
-      - 'MONGO_INITDB_ROOT_USERNAME=root'
-    ports:
-      - '27017'
-    volumes:
-      - 'mongodb_data:/data/db'
-  localstack:
-    image: localstack/localstack:latest
-    container_name: localstack-sqs
-    ports:
-      - "4566:4566" # porta principal de acesso
-    environment:
-      - SERVICES=sqs
-      - DEBUG=1
-      - DOCKER_HOST=unix:///var/run/docker.sock
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "localstack_data:/var/lib/localstack"
   postgres:
     image: postgres:17
     container_name: postgres_fastfood
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_DB: ${POSTGRES_DB_PEDIDOS}
+      POSTGRES_DB_PRODUTOS: ${POSTGRES_DB_PRODUTOS}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     networks:
       - fastfood_network
-  fastfood_app:
-      build: ./../
-      image: fastfood_app_pedidos:latest
-      container_name: fastfood_app_pedidos
-      environment:
-        SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
-        SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-        SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      ports:
-        - "9901:8080"
-      depends_on:
-        - postgres
-      networks:
-        - fastfood_network
+
+  mongodb:
+    image: 'mongo:latest'
+    container_name: mongodb_fastfood
+    ports:
+      - '27017:27017'
+    volumes:
+      - 'mongodb_data:/data/db'
+    networks:
+      - fastfood_network
+
+  localstack:
+    image: localstack/localstack:latest-amd64
+    container_name: localstack-sqs
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=sqs
+      - DEBUG=1
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "localstack_data:/var/lib/localstack"
+    networks:
+      - fastfood_network
+
+  fastfood_app_pedidos:
+    build:
+      context: ./../
+    image: fastfood_app_pedidos:latest
+    container_name: fastfood_app_pedidos
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB_PEDIDOS}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      AWS_ENDPOINT: http://localstack:4566
+      # URL para o serviço de produtos
+      URL_PRODUTOS: http://fastfood_app_produtos:8080/api/v1/produtos
+    ports:
+      - "9901:8080" # Porta para o serviço de Pedidos
+    depends_on:
+      - postgres
+      - localstack
+    networks:
+      - fastfood_network
+
+  # --- MICROSSERVIÇO DE PRODUTOS ---
+  fastfood_app_produtos:
+    build:
+      context: ../../postech-fastfood-04-ms-produto
+    image: fastfood_app_produtos:latest
+    container_name: fastfood_app_produtos
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB_PRODUTOS}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "9902:8080" # Porta diferente para o serviço de Produtos
+    depends_on:
+      - postgres
+    networks:
+      - fastfood_network
 
 volumes:
   postgres_data:
@@ -57,3 +84,4 @@ volumes:
 
 networks:
   fastfood_network:
+    driver: bridge
