@@ -1,4 +1,3 @@
--- Versão Corrigida
 CREATE TABLE pedido_produto
 (
     id           SERIAL PRIMARY KEY,

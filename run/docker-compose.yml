@@ -35,10 +35,17 @@ services:
       - SERVICES=sqs
       - DEBUG=1
     volumes:
+      - ./init-sqs-local.sh:/etc/localstack/init/ready.d/init-sqs-local.sh
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "localstack_data:/var/lib/localstack"
     networks:
       - fastfood_network
+    healthcheck:
+      test: >
+        awslocal sqs list-queues | grep -q "fila-pedidos"
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   fastfood_app_pedidos:
     build:

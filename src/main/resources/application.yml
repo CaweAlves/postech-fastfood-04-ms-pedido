@@ -1,7 +1,7 @@
 app:
   name: FastFood Pedidos
   url: ${APPLICATION_URL:https://127.0.0.1:8080}
-  fila-pedidos: ${ENDERECO_FILA_pedidos:https://localhost.localstack.cloud:4566/000000000000/fila-pedidos}
+  fila-pedidos: ${ENDERECO_FILA_pedidos:fila-pedidos}
   services:
     produtos: ${URL_PRODUTOS:http://localhost:8081/api/v1/produtos}
     pagamentos: ${URL_PAGAMENTOS:http://localhost:8082/api/v1/pagamentos}
