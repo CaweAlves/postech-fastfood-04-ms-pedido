@@ -1,27 +1,22 @@
 package org.fiap.fastfoodpedidos.application.usecase;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.fiap.fastfoodpedidos.application.port.driver.AtualizarStatusPedidoUseCase;
 import org.fiap.fastfoodpedidos.application.port.driver.CancelarPagamentoUseCase;
-import org.fiap.fastfoodpedidos.domain.enumeration.PagamentoStatus;
 import org.fiap.fastfoodpedidos.domain.enumeration.PedidoStatus;
-import org.fiap.fastfoodpedidos.domain.exception.ImpossivelCancelarPagamentoException;
 import org.fiap.fastfoodpedidos.domain.model.Pagamento;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CancelarPagamentoUseCaseUseCaseImpl implements CancelarPagamentoUseCase {
 
     private final AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase;
 
     @Override
-    public Pagamento execute(String idExternoPagamento) {
-        Pagamento pagamento = new Pagamento();
-        return pagamento;
-    }
+    public void execute(Integer pedidoId) {
+        if (pedidoId == null) {
+            throw new IllegalArgumentException("Dados do pagamento ou pedido inválidos para cancelamento.");
+        }
 
-    private boolean isPossivelCancelarPagamento(Pagamento pagamento) {
-        boolean isPagamentoPendente = PagamentoStatus.PENDENTE.equals(pagamento.getStatus());
-        boolean isPedidoAguardandoPagamento = PedidoStatus.AGUARDANDO_PAGAMENTO.equals(pagamento.getPedido().getStatus());
-        return isPagamentoPendente && isPedidoAguardandoPagamento;
+        atualizarStatusPedidoUseCase.execute(pedidoId, PedidoStatus.CANCELADO);
     }
 }

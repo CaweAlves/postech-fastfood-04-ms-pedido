@@ -1,7 +1,7 @@
 app:
   name: FastFood Pedidos
   url: ${APPLICATION_URL:https://127.0.0.1:8080}
-  fila-pedidos: ${ENDERECO_FILA_pedidos:fila-pedidos}
+  fila-pedidos: ${ENDERECO_FILA_pedidos:fila-pagamentos}
   services:
     produtos: ${APP_SERVICES_PRODUTOS:http://localhost:8081/api/v1/produtos}
     pagamentos: ${APP_SERVICES_PAGAMENTOS:http://localhost:8082/api/v1/pagamentos}
