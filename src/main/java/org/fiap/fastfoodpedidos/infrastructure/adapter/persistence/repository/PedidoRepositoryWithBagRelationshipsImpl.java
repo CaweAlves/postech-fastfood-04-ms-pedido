@@ -19,6 +19,7 @@ public class PedidoRepositoryWithBagRelationshipsImpl implements PedidoRepositor
 
     @Override
     public Optional<PedidoEntity> fetchBagRelationships(Optional<PedidoEntity> pedido) {
+        // Este método agora chama a versão corrigida de fetchProdutos
         return pedido.map(this::fetchProdutos);
     }
 
@@ -34,7 +35,7 @@ public class PedidoRepositoryWithBagRelationshipsImpl implements PedidoRepositor
 
     PedidoEntity fetchProdutos(PedidoEntity result) {
         return entityManager
-                .createQuery("select pedido from PedidoEntity pedido left join fetch pedido.produtos where pedido is :pedido", PedidoEntity.class)
+                .createQuery("select pedido from PedidoEntity pedido left join fetch pedido.pedidoProdutos where pedido = :pedido", PedidoEntity.class)
                 .setParameter("pedido", result)
                 .setHint("hibernate.query.passDistinctThrough", false)
                 .getSingleResult();
@@ -44,7 +45,7 @@ public class PedidoRepositoryWithBagRelationshipsImpl implements PedidoRepositor
         HashMap<Object, Integer> order = new HashMap<>();
         IntStream.range(0, pedidoEntities.size()).forEach(index -> order.put(pedidoEntities.get(index).getId(), index));
         List<PedidoEntity> result = entityManager
-                .createQuery("select distinct pedido from PedidoEntity pedido left join fetch pedido.produtos where pedido in :pedidos", PedidoEntity.class)
+                .createQuery("select distinct pedido from PedidoEntity pedido left join fetch pedido.pedidoProdutos where pedido in :pedidos", PedidoEntity.class)
                 .setParameter("pedidos", pedidoEntities)
                 .setHint("hibernate.query.passDistinctThrough", false)
                 .getResultList();

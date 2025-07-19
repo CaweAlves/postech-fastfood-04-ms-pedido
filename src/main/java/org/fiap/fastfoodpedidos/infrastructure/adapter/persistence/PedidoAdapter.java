@@ -24,7 +24,8 @@ public class PedidoAdapter implements SalvarPedido, ConsultarPedido, BuscarPedid
 
     @Override
     public Pedido execute(Integer id) {
-        PedidoEntity pedidoEntity = this.pedidoRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "O pedido não foi encontrado."));
+        PedidoEntity pedidoEntity = this.pedidoRepository.findOneWithEagerRelationships(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "O pedido não foi encontrado."));
         return this.pedidoPersistenceMapper.toDomain(pedidoEntity);
     }
 

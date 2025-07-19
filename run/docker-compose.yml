@@ -1,5 +1,6 @@
 version: '3.9'
 services:
+  # --- DEPENDÊNCIAS ---
   postgres:
     image: postgres:17
     container_name: postgres_fastfood
@@ -8,23 +9,27 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB_PEDIDOS}
       POSTGRES_DB_PRODUTOS: ${POSTGRES_DB_PRODUTOS}
+      POSTGRES_DB_PAGAMENTOS: ${POSTGRES_DB_PAGAMENTOS}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     networks:
-      - fastfood_network
+      - fastfood-network
 
   mongodb:
-    image: 'mongo:latest'
+    image: 'mongo:5.0-focal'
     container_name: mongodb_fastfood
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-fastfood_pagamentos_user}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-fastfood_pagamentos_password}
     ports:
       - '27017:27017'
     volumes:
       - 'mongodb_data:/data/db'
     networks:
-      - fastfood_network
+      - fastfood-network
 
   localstack:
     image: localstack/localstack:latest-amd64
@@ -39,50 +44,70 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "localstack_data:/var/lib/localstack"
     networks:
-      - fastfood_network
+      - fastfood-network
     healthcheck:
       test: >
-        awslocal sqs list-queues | grep -q "fila-pedidos"
+        awslocal sqs list-queues | grep -q "fila-pedidos" &&
+        awslocal sqs list-queues | grep -q "fila-pagamentos"
       interval: 10s
       timeout: 5s
       retries: 5
 
-  fastfood_app_pedidos:
+  # --- MICROSSERVIÇOS ---
+  fastfood-app-pedidos:
     build:
       context: ./../
     image: fastfood_app_pedidos:latest
-    container_name: fastfood_app_pedidos
+    container_name: fastfood-app-pedidos
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB_PEDIDOS}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       AWS_ENDPOINT: http://localstack:4566
-      # URL para o serviço de produtos
-      URL_PRODUTOS: http://fastfood_app_produtos:8080/api/v1/produtos
+      APP_SERVICES_PRODUTOS: http://fastfood-app-produtos:8080/api/v1/produtos
+      APP_SERVICES_PAGAMENTOS: http://fastfood-app-pagamentos:8080/api/v1/pagamentos
     ports:
-      - "9901:8080" # Porta para o serviço de Pedidos
+      - "9901:8080"
     depends_on:
-      - postgres
-      - localstack
+      localstack:
+        condition: service_healthy
+      postgres:
+        condition: service_started
     networks:
-      - fastfood_network
+      - fastfood-network
 
-  # --- MICROSSERVIÇO DE PRODUTOS ---
-  fastfood_app_produtos:
+  fastfood-app-produtos:
     build:
       context: ../../postech-fastfood-04-ms-produto
     image: fastfood_app_produtos:latest
-    container_name: fastfood_app_produtos
+    container_name: fastfood-app-produtos
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB_PRODUTOS}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "9902:8080" # Porta diferente para o serviço de Produtos
+      - "9902:8080"
     depends_on:
       - postgres
     networks:
-      - fastfood_network
+      - fastfood-network
+
+  fastfood-app-pagamentos:
+    build:
+      context: ../../postech-fastfood-04-ms-pagamentos
+    image: fastfood_app_pagamentos:latest
+    container_name: fastfood-app-pagamentos
+    environment:
+      MONGODB_URI: mongodb://${MONGO_USER:-fastfood_pagamentos_user}:${MONGO_PASSWORD:-fastfood_pagamentos_password}@mongodb:27017/fastfood_pagamentos?authSource=admin
+      AWS_ENDPOINT: http://localstack:4566
+      MERCADO_PAGO_TOKEN: ${MERCADO_PAGO_TOKEN}
+    ports:
+      - "9903:8080"
+    depends_on:
+      - mongodb
+      - localstack
+    networks:
+      - fastfood-network
 
 volumes:
   postgres_data:
@@ -90,5 +115,5 @@ volumes:
   mongodb_data:
 
 networks:
-  fastfood_network:
+  fastfood-network:
     driver: bridge

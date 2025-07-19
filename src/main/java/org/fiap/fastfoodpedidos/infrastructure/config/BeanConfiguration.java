@@ -46,23 +46,23 @@ public class BeanConfiguration {
     }
 
     @Bean
+    public IniciarPagamentoUseCase iniciarPagamentoUseCase(final SolicitarPagamento solicitarPagamento, final ConsultarPedido consultarPedido) {
+        return new IniciarPagamentoUseCaseUseCaseImpl(solicitarPagamento, consultarPedido);
+    }
+
+    @Bean
     public SolicitarPagamento solicitarPagamento(RestTemplate restTemplate) {
         return new PagamentoClientAdapter(restTemplate);
     }
 
     @Bean
-    public IniciarPagamentoUseCase iniciarPagamentoUseCase(final SolicitarPagamento solicitarPagamento, final ManipularPagamento manipularPagamento, final ConsultarPedido consultarPedido) {
-        return new IniciarPagamentoUseCaseUseCaseImpl(solicitarPagamento, manipularPagamento, consultarPedido);
+    public ConfirmarPagamentoUseCase confirmarPagamentoUseCase(final AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase) {
+        return new ConfirmarPagamentoUseCaseUseCaseImpl(atualizarStatusPedidoUseCase);
     }
 
     @Bean
-    public ConfirmarPagamentoUseCase confirmarPagamentoUseCase(final ManipularPagamento manipularPagamento, final AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase) {
-        return new ConfirmarPagamentoUseCaseUseCaseImpl(manipularPagamento, atualizarStatusPedidoUseCase);
-    }
-
-    @Bean
-    public CancelarPagamentoUseCase cancelarPagamentoUseCase(final ManipularPagamento manipularPagamento, final AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase) {
-        return new CancelarPagamentoUseCaseUseCaseImpl(manipularPagamento, atualizarStatusPedidoUseCase);
+    public CancelarPagamentoUseCase cancelarPagamentoUseCase(final AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase) {
+        return new CancelarPagamentoUseCaseUseCaseImpl(atualizarStatusPedidoUseCase);
     }
 
     @Bean

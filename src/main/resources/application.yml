@@ -3,8 +3,8 @@ app:
   url: ${APPLICATION_URL:https://127.0.0.1:8080}
   fila-pedidos: ${ENDERECO_FILA_pedidos:fila-pedidos}
   services:
-    produtos: ${URL_PRODUTOS:http://localhost:8081/api/v1/produtos}
-    pagamentos: ${URL_PAGAMENTOS:http://localhost:8082/api/v1/pagamentos}
+    produtos: ${APP_SERVICES_PRODUTOS:http://localhost:8081/api/v1/produtos}
+    pagamentos: ${APP_SERVICES_PAGAMENTOS:http://localhost:8082/api/v1/pagamentos}
 spring:
   profiles:
     active: ${PROFILE:DEV}

@@ -1,7 +1,6 @@
 package org.fiap.fastfoodpedidos.application.usecase;
 
 import lombok.AllArgsConstructor;
-import org.fiap.fastfoodpedidos.application.port.driven.ManipularPagamento;
 import org.fiap.fastfoodpedidos.application.port.driver.AtualizarStatusPedidoUseCase;
 import org.fiap.fastfoodpedidos.application.port.driver.CancelarPagamentoUseCase;
 import org.fiap.fastfoodpedidos.domain.enumeration.PagamentoStatus;
@@ -12,20 +11,12 @@ import org.fiap.fastfoodpedidos.domain.model.Pagamento;
 @AllArgsConstructor
 public class CancelarPagamentoUseCaseUseCaseImpl implements CancelarPagamentoUseCase {
 
-    private final ManipularPagamento manipularPagamento;
     private final AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase;
 
     @Override
     public Pagamento execute(String idExternoPagamento) {
-        Pagamento pagamento = manipularPagamento.buscarPagamentoPorIdExterno(idExternoPagamento);
-
-        if (!isPossivelCancelarPagamento(pagamento)) {
-            throw new ImpossivelCancelarPagamentoException();
-        }
-
-        pagamento.setStatus(PagamentoStatus.CANCELADO);
-        atualizarStatusPedidoUseCase.execute(pagamento.getPedido().getId(), PedidoStatus.CANCELADO);
-        return manipularPagamento.alterarPagamento(pagamento);
+        Pagamento pagamento = new Pagamento();
+        return pagamento;
     }
 
     private boolean isPossivelCancelarPagamento(Pagamento pagamento) {
