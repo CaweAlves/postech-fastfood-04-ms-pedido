@@ -69,4 +69,9 @@ public class BeanConfiguration {
     public CriarClienteUseCaseImp criarClienteUseCaseImp(SalvarCliente salvarCliente) {
         return new CriarClienteUseCaseImp(salvarCliente);
     }
+
+    @Bean
+    public ListarProdutosDisponiveisUseCase listarProdutosDisponiveisUseCase(final BuscarProdutos buscarProdutos) {
+        return new ListarProdutosDisponiveisUseCaseImpl(buscarProdutos);
+    }
 }
