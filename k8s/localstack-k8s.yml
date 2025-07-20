@@ -1,0 +1,42 @@
+# localstack-k8s.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: localstack-deployment
+  labels:
+    app: localstack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: localstack
+  template:
+    metadata:
+      labels:
+        app: localstack
+    spec:
+      containers:
+        - name: localstack
+          image: localstack/localstack:latest
+          ports:
+            - containerPort: 4566
+          env:
+            - name: SERVICES
+              value: sqs
+            - name: DATA_DIR
+              value: /tmp/localstack/data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: localstack-service
+  labels:
+    app: localstack
+spec:
+  type: ClusterIP
+  selector:
+    app: localstack
+  ports:
+    - protocol: TCP
+      port: 4566
+      targetPort: 4566
