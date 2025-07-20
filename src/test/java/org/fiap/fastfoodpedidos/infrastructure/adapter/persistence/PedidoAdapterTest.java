@@ -23,8 +23,8 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import({PedidoAdapter.class, PedidoAdapterIT.MapperTestConfig.class})
-class PedidoAdapterIT {
+@Import({PedidoAdapter.class, PedidoAdapterTest.MapperTestConfig.class})
+class PedidoAdapterTest {
 
     @TestConfiguration
     static class MapperTestConfig {

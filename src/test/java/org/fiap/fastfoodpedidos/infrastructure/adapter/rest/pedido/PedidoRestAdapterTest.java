@@ -1,6 +1,7 @@
 package org.fiap.fastfoodpedidos.infrastructure.adapter.rest.pedido;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.fiap.fastfoodpedidos.AbstractIntegrationTest;
 import org.fiap.fastfoodpedidos.application.port.driver.BuscarPedidoUseCase;
 import org.fiap.fastfoodpedidos.application.port.driver.BuscarPedidosEmAndamentoUseCase;
 import org.fiap.fastfoodpedidos.application.port.driver.BuscarPedidosUseCase;
@@ -14,17 +15,9 @@ import org.fiap.fastfoodpedidos.infrastructure.adapter.rest.pedido.dto.Registrar
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.localstack.LocalStackContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -39,33 +32,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
 @AutoConfigureMockMvc
-@Testcontainers
-class PedidoRestAdapterIT {
-
-    // --- Definição dos Contentores de Teste ---
-    @Container // O Testcontainers irá gerir este contentor (iniciar/parar)
-    static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:14").withDatabaseName("testdb").withUsername("sa").withPassword("password");
-
-    @Container
-    static LocalStackContainer localStackContainer = new LocalStackContainer(DockerImageName.parse("localstack/localstack:latest-amd64")).withServices(LocalStackContainer.Service.SQS);
-
-    // --- Configuração Dinâmica das Propriedades ---
-
-    @DynamicPropertySource // Este método sobreescreve as propriedades da aplicação ANTES de ela iniciar
-    static void setProperties(DynamicPropertyRegistry registry) {
-        // Sobrepõe as propriedades da base de dados com os dados do contentor PostgreSQL
-        registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
-        registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
-        registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
-
-        // Sobrepõe as propriedades da AWS com os dados do contentor LocalStack
-        registry.add("spring.cloud.aws.endpoint", () -> localStackContainer.getEndpointOverride(LocalStackContainer.Service.SQS).toString());
-        registry.add("spring.cloud.aws.credentials.access-key", localStackContainer::getAccessKey);
-        registry.add("spring.cloud.aws.credentials.secret-key", localStackContainer::getSecretKey);
-        registry.add("spring.cloud.aws.region.static", localStackContainer::getRegion);
-    }
+class PedidoRestAdapterTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
