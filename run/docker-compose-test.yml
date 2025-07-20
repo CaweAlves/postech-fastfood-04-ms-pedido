@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  postgres-test:
+    image: postgres:14
+    container_name: postgres_pedidos_test
+    environment:
+      POSTGRES_USER: sa
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: testdb
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sa -d testdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  localstack-test:
+    image: localstack/localstack:latest-amd64
+    container_name: localstack_pedidos_test
+    environment:
+      - SERVICES=sqs
+    ports:
+      - "4567:4566"
+    healthcheck:
+      test: ["CMD-SHELL", "awslocal s3 ls"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
