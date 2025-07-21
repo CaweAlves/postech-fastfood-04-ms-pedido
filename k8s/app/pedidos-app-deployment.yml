@@ -1,0 +1,67 @@
+# k8s/app/pedidos-app-deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastfood-pedidos-deployment
+  namespace: fastfood
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: fastfood-pedidos
+  template:
+    metadata:
+      labels:
+        app: fastfood-pedidos
+    spec:
+      containers:
+        - name: fastfood-pedidos-app
+          image: ${DOCKER_USERNAME}/fastfood_app_pedidos:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: app-config
+          env:
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pedidos-db-credentials
+                  key: POSTGRES_PASSWORD
+
+            - name: AWS_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pedidos-aws-credentials
+                  key: AWS_ACCESS_KEY
+            - name: AWS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pedidos-aws-credentials
+                  key: AWS_SECRET_KEY
+            - name: AWS_SESSION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: pedidos-aws-credentials
+                  key: AWS_SESSION_TOKEN
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: pedidos-aws-credentials
+                  key: AWS_REGION
+            - name: ENDERECO_FILA_PAGAMENTOS
+              valueFrom:
+                secretKeyRef:
+                  name: pedidos-aws-credentials
+                  key: ENDERECO_FILA_PAGAMENTOS
+            - name: APPLICATION_URL
+              valueFrom:
+                  secretKeyRef:
+                  name: pedidos-aws-credentials
+                  key: APPLICATION_URL

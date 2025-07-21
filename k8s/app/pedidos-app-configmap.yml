@@ -1,0 +1,12 @@
+# k8s/app/pedidos-app-configmap.yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: fastfood
+data:
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://RDS_POSTGRES_ENDPOINT:5432/fastfood_pedidos"
+  SPRING_DATASOURCE_USERNAME: "fastfood_pedidos_user"
+
+  APP_SERVICES_PRODUTOS: "http://fastfood-app-produtos-service:8080/api/v1/produtos"
+  APP_SERVICES_PAGAMENTOS: "http://fastfood-app-pagamentos-service:8080/api/v1/pagamentos"

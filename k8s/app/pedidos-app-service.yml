@@ -1,0 +1,14 @@
+# k8s/app/pedidos-app-service.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastfood-pedidos-service
+  namespace: fastfood
+spec:
+  type: LoadBalancer
+  selector:
+    app: fastfood-pedidos
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
